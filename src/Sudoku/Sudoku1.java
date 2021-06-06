@@ -3,18 +3,11 @@ package Sudoku;
 import java.util.*;
 import java.io.*;
 
-
 public class Sudoku1 {
-    /* SIZE is the size parameter of the Sudoku puzzle, and N is the square of the size.
-     */
+    //SIZE is the size parameter of the Sudoku puzzle, and N is the square of the size.
     public int SIZE, N;
-
-    /* The grid contains all the numbers in the Sudoku puzzle.  Numbers which have
-     * not yet been revealed are stored as 0.
-     */
+    //The grid contains all the numbers in the Sudoku puzzle.  Numbers which have not yet been revealed are stored as 0.
     public int grid[][];
-
-
     // Field that stores the same Sudoku puzzle solved in all possible ways
     public HashSet<Sudoku1> solutions = new HashSet<Sudoku1>();
 
@@ -61,9 +54,6 @@ public class Sudoku1 {
             }
         }
         boolean[] flags= new boolean[grids.size()];
-        for(boolean e: flags){
-            e= false;
-        }
         fillBoard(rows, columns, squares, grids, tmp, false, flags);
         grid= tmp;
 
@@ -75,56 +65,6 @@ public class Sudoku1 {
 
 
 
-    private void clearCell(ArrayList<HashSet<Integer>> rows, ArrayList<HashSet<Integer>> columns,
-                           ArrayList<HashSet<Integer>> squares, ArrayList<int[]> emptyCells,
-                           int[][] grid, int i, int row, int column,int startRow, int startColumn) {
-        grid[row- startRow][column- startColumn]= 0;
-        rows.get(row).remove(i);
-        columns.get(column).remove(i);
-        squares.get(SIZE* (row/SIZE)+ column/SIZE).remove(i);// If the grid cannot be filled, return its original status.
-        int[] tmp= {row- startRow, column- startColumn};
-        emptyCells.add(tmp);
-    }
-
-    private boolean fillGrid(ArrayList<HashSet<Integer>> rows, ArrayList<HashSet<Integer>> columns,
-                             ArrayList<HashSet<Integer>> squares,  int[][] Square, ArrayList<ArrayList<int[]>> grids,
-                             int startRow, int startColumn, ArrayList<int[]> emptySpots){
-        if(emptySpots.isEmpty()){
-            return true;
-        }
-
-        for(int i= 1; i<= N; i++) {
-            int[] cell = emptySpots.remove(emptySpots.size() - 1);
-            int row = cell[0];
-            int column = cell[1];
-            if(basicValid( rows,  columns, squares, row+ startRow, column+ startColumn, i)){
-                count++;
-                Square[row][column]= i;
-                rows.get(row+ startRow).add(i);
-                columns.get(column+ startColumn).add(i);
-                squares.get(SIZE* (startRow/SIZE)+ startColumn/SIZE).add(i);
-                if(fillGrid(rows, columns, squares, Square, grids, startRow, startColumn, emptySpots)){
-                    int[] tmp= new int[SIZE* SIZE];
-                    int idx= 0;
-                    for(int m= 0; m< SIZE; m++){
-                        for(int n= 0; n< SIZE; n++) {
-                            tmp[idx]= Square[m][n];
-                            idx++;
-                        }
-                    }
-                    grids.get(SIZE* (startRow/SIZE)+ startColumn/SIZE).add(tmp);
-                    clearCell(rows, columns, squares, emptySpots, Square, i, row+ startRow, column+ startColumn, startRow, startColumn);
-                    return false;
-                }else {
-                    clearCell(rows, columns, squares, emptySpots, Square, i, row+ startRow, column+ startColumn, startRow, startColumn);
-                }
-            }else{
-                emptySpots.add(cell);
-            }
-        }
-        return false;
-    } //Fill the small grids and then integrate
-    static int count= 0;
     private boolean fillBoard(ArrayList<HashSet<Integer>> rows, ArrayList<HashSet<Integer>> columns,
                               ArrayList<HashSet<Integer>> squares, ArrayList<ArrayList<int[]>> grids, int[][] board, boolean allFlagged, boolean[] flags){
         if(allFlagged) return true;// Clearly wrong
@@ -154,8 +94,8 @@ public class Sudoku1 {
         for(int i= 0; i< Squares.size(); i++){
             int[] square= Squares.get(i);
             if(putSquare(rows, columns, squares, board, square, row, column)){
-                count++;
                 if(fillBoard(rows, columns, squares, grids, board, allFlagged, flags)){
+                    System.out.println("Yello");
                     return true;
                 }else {
                     removeSquare(rows, columns, squares, board, square, row, column);
@@ -207,7 +147,53 @@ public class Sudoku1 {
 
     }
 
+    private void clearCell(ArrayList<HashSet<Integer>> rows, ArrayList<HashSet<Integer>> columns,
+                           ArrayList<HashSet<Integer>> squares, ArrayList<int[]> emptyCells,
+                           int[][] grid, int i, int row, int column,int startRow, int startColumn) {
+        grid[row- startRow][column- startColumn]= 0;
+        rows.get(row).remove(i);
+        columns.get(column).remove(i);
+        squares.get(SIZE* (row/SIZE)+ column/SIZE).remove(i);// If the grid cannot be filled, return its original status.
+        int[] tmp= {row- startRow, column- startColumn};
+        emptyCells.add(tmp);
+    }
+    private boolean fillGrid(ArrayList<HashSet<Integer>> rows, ArrayList<HashSet<Integer>> columns,
+                             ArrayList<HashSet<Integer>> squares,  int[][] Square, ArrayList<ArrayList<int[]>> grids,
+                             int startRow, int startColumn, ArrayList<int[]> emptySpots){
+        if(emptySpots.isEmpty()){
+            return true;
+        }
 
+        for(int i= 1; i<= N; i++) {
+            int[] cell = emptySpots.remove(emptySpots.size() - 1);
+            int row = cell[0];
+            int column = cell[1];
+            if(basicValid( rows,  columns, squares, row+ startRow, column+ startColumn, i)){
+                Square[row][column]= i;
+                rows.get(row+ startRow).add(i);
+                columns.get(column+ startColumn).add(i);
+                squares.get(SIZE* (startRow/SIZE)+ startColumn/SIZE).add(i);
+                if(fillGrid(rows, columns, squares, Square, grids, startRow, startColumn, emptySpots)){
+                    int[] tmp= new int[SIZE* SIZE];
+                    int idx= 0;
+                    for(int m= 0; m< SIZE; m++){
+                        for(int n= 0; n< SIZE; n++) {
+                            tmp[idx]= Square[m][n];
+                            idx++;
+                        }
+                    }
+                    grids.get(SIZE* (startRow/SIZE)+ startColumn/SIZE).add(tmp);
+                    clearCell(rows, columns, squares, emptySpots, Square, i, row+ startRow, column+ startColumn, startRow, startColumn);
+                    return false;
+                }else {
+                    clearCell(rows, columns, squares, emptySpots, Square, i, row+ startRow, column+ startColumn, startRow, startColumn);
+                }
+            }else{
+                emptySpots.add(cell);
+            }
+        }
+        return false;
+    } //Fill the small grids and then integrate
     private static ArrayList<ArrayList<int[]>> buildAArrayList(int num){
         ArrayList<ArrayList<int[]>> aal= new ArrayList<>();
         for(int i= 0; i< num; i++){
@@ -240,16 +226,6 @@ public class Sudoku1 {
         int square= SIZE* (row/SIZE)+ column/SIZE;
         return squareSafe(squares, square, num);
     }    //Integrate all the basic checks
-    private void clearCell(ArrayList<HashSet<Integer>> rows, ArrayList<HashSet<Integer>> columns,
-                           ArrayList<HashSet<Integer>> squares, ArrayList<int[]> emptyCells,
-                           int[] grid, int i, int row, int column, int weight) {
-        grid[row*N+ column]= 0;
-        rows.get(row).remove(i);
-        columns.get(column).remove(i);
-        squares.get(SIZE* (row/SIZE)+ column/SIZE).remove(i);// If the grid cannot be filled, return its original status.
-        int[] tmp= {row, column, weight};
-        emptyCells.add(tmp);
-    }
     Sudoku1(int size, int[] board){
         SIZE = size;
         N = size*size;
@@ -344,7 +320,7 @@ public class Sudoku1 {
         }
     }
     public static void main( String args[] ) throws Exception {
-        InputStream in = new FileInputStream("medium3x3.txt");
+        InputStream in = new FileInputStream("veryEasy4x4.txt");
 
         // The first number in all Sudoku files must represent the size of the puzzle.  See
         // the example files for the file format.
@@ -362,13 +338,14 @@ public class Sudoku1 {
         System.out.println("Before the solve:");
         s.print();
         System.out.println();
-
+        long start = System.currentTimeMillis();
         s.solve(false);
+        long end = System.currentTimeMillis();
 
         // Print out the (hopefully completed!) puzzle
         System.out.println("After the solve:");
         s.print();
-        System.out.println(s.solutions.size());
+        System.out.printf("The elapsed time is: %d \n", end- start);
 
     }
 }

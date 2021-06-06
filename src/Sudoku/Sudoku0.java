@@ -17,7 +17,7 @@ public class Sudoku0 {
 
 
     // Field that stores the same Sudoku puzzle solved in all possible ways
-    public HashSet<Sudoku1> solutions = new HashSet<Sudoku1>();
+    public HashSet<Sudoku0> solutions = new HashSet<Sudoku0>();
 
 
     public void solve(boolean allSolutions) {
@@ -107,7 +107,7 @@ public class Sudoku0 {
                 columns.get(column).add(i);
                 squares.get(SIZE* (row/SIZE)+ column/SIZE).add(i);// Set up the corresponding scenario for future check
                 if(fill(rows, columns, squares, emptyCells, grid, allSolutions)){
-                    Sudoku1 s = new Sudoku1(SIZE, grid);
+                    Sudoku0 s = new Sudoku0(SIZE, grid);
                     this.grid= s.grid;
                     if(!allSolutions) return true;
                     solutions.add(s);
@@ -232,7 +232,7 @@ public class Sudoku0 {
     }
 
     public static void main( String args[] ) throws Exception {
-        InputStream in = new FileInputStream("medium3x3.txt");
+        InputStream in = new FileInputStream("veryEasy4x4.txt");
 
         // The first number in all Sudoku files must represent the size of the puzzle.  See
         // the example files for the file format.
@@ -242,7 +242,7 @@ public class Sudoku0 {
             System.exit(-1);
         }
 
-        Sudoku1 s = new Sudoku1( puzzleSize );
+        Sudoku0 s = new Sudoku0( puzzleSize );
 
         s.read( in );
 
@@ -250,13 +250,14 @@ public class Sudoku0 {
         System.out.println("Before the solve:");
         s.print();
         System.out.println();
-
+        long start = System.currentTimeMillis();
         s.solve(false);
+        long end = System.currentTimeMillis();
 
         // Print out the (hopefully completed!) puzzle
         System.out.println("After the solve:");
         s.print();
-        System.out.println(s.solutions.size());
+        System.out.printf("The elapsed time is: %d \n", end- start);
 
     }
 }
