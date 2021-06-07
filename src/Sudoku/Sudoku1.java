@@ -2,7 +2,7 @@ package Sudoku;
 
 import java.util.*;
 import java.io.*;
-
+// This is the advanced version of backtracking. Not super efficient in 4x4, though.
 public class Sudoku1 {
     //SIZE is the size parameter of the Sudoku puzzle, and N is the square of the size.
     public int SIZE, N;
@@ -54,6 +54,9 @@ public class Sudoku1 {
             }
         }
         boolean[] flags= new boolean[grids.size()];
+        for(int i= 0; i< grids.size(); i++){
+            flags[i]= grids.get(i).size()== 0;
+        }
         fillBoard(rows, columns, squares, grids, tmp, false, flags);
         grid= tmp;
 
@@ -67,42 +70,34 @@ public class Sudoku1 {
 
     private boolean fillBoard(ArrayList<HashSet<Integer>> rows, ArrayList<HashSet<Integer>> columns,
                               ArrayList<HashSet<Integer>> squares, ArrayList<ArrayList<int[]>> grids, int[][] board, boolean allFlagged, boolean[] flags){
-        if(allFlagged) return true;// Clearly wrong
         allFlagged= true;
         int idx= -1;
         int mSize= -1;
-        boolean allSet= true;
         for(int i= 0; i< grids.size(); i++){
             if(allFlagged && !flags[i]) {
                 idx= i;
                 mSize= grids.get(i).size();
                 allFlagged= false;
             }else if (!flags[i] && grids.get(i).size() < mSize) {
-                allSet= false;
                 idx = i;
                 mSize = grids.get(i).size();
-            }else{
-                allSet= false;
             }
         }
-        allFlagged= allSet;
-        if(idx== -1) return true;
+
+        if(allFlagged) return true;
         flags[idx] = true;
-        int row= idx/SIZE* SIZE;
-        int column= idx% SIZE* SIZE;
+        int row= (idx/SIZE)* SIZE;
+        int column= (idx% SIZE)* SIZE;
         ArrayList<int[]> Squares= grids.get(idx);
+        System.out.println(idx);
         for(int i= 0; i< Squares.size(); i++){
             int[] square= Squares.get(i);
             if(putSquare(rows, columns, squares, board, square, row, column)){
-                if(fillBoard(rows, columns, squares, grids, board, allFlagged, flags)){
-                    System.out.println("Yello");
+                if(fillBoard(rows, columns, squares, grids, board, allFlagged, flags)) {
                     return true;
-                }else {
-                    removeSquare(rows, columns, squares, board, square, row, column);
                 }
-            }else{
-                removeSquare(rows, columns, squares, board, square, row, column);
             }
+                removeSquare(rows, columns, squares, board, square, row, column);
         }
         flags[idx]= false;
         return false;
@@ -320,7 +315,7 @@ public class Sudoku1 {
         }
     }
     public static void main( String args[] ) throws Exception {
-        InputStream in = new FileInputStream("veryEasy4x4.txt");
+        InputStream in = new FileInputStream("hard4x4.txt");
 
         // The first number in all Sudoku files must represent the size of the puzzle.  See
         // the example files for the file format.
