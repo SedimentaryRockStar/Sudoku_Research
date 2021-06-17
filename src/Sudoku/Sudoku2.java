@@ -45,29 +45,29 @@ public class Sudoku2 {
         if(c.size== 0) return false;// Fail to cover the matrix in this branch;
         if(c== head) head= (ColumnNode) c.R; //Update the head node of columns if the chosen one is the head
         Node r= c.D;
-        while(r!= c){
+        do{
+            r= r.D;
             s.add(r.data);
-            Node j= r. R;
-            while(j!= r){
-                j.C.cover(j.C);
+            Node j= r;
+            do{
                 j= j.R;
-            }
+                System.out.println(j.C.name);
+                j.C.cover();
+            }while(j!= r);
             if(search(k+ 1, s, allSolutions)){
                 paintGrid(s, allSolutions);
                 return !allSolutions;
-            }else{
-                s.remove(r.data);
-                c= r.C;
-                j= r.L;
-                while(j!= r){
-                    j.C.uncover(j.C);
-                    j= j.L;
-                }
-                r= r.D;
             }
-        }
+            s.remove(r.data);
+            c= r.C;
+            j= r;
+            do{
+                j= j.L;
+                j.C.uncover();
+            }while(j!= r);
+        }while(r!= c.D);
         if(head== c.R) head= c;
-        c.uncover(c);
+        c.uncover();
         return false;
     }
 
@@ -142,7 +142,7 @@ public class Sudoku2 {
         ColumnNode firstCol= new ColumnNode();
         for(int j= 0; j< m[1].length; j++) {
             ColumnNode col= new ColumnNode();
-            col.name= j;
+            col.name= j+ 1;
             if(j== 0){
                 curCol= col;
                 firstCol= col;
@@ -194,10 +194,8 @@ public class Sudoku2 {
                     cur = nodes[n];
                 }
             }
-            cur.linkR(first);
+            if(cur!= null && first!= null)cur.linkR(first);
         }
-
-
         return firstCol;
     }
     /**
@@ -206,20 +204,9 @@ public class Sudoku2 {
      * PreprocessM will perform the deletion of certain region where a number is already in the cell of grid.
      */
     public void delARow(int r){
-        for(Node i= m[r][r/9].R; i!= m[r][r/9]; i= i.R){
-            i.unlinkD();
-            i.C.size--;
-            if(i== i.C.D) i.C.D= i.D; // Deduct the size the corresponding column and update the head & tail of the column
-            if(i== i.C.U) i.C.U= i.U;
-        }
-        m[r][r/9].unlinkD();// Use the idx of row to calculate the actual column number. Under this set of exact cover of Sudoku,
-        // here we could safely assume that the first Node happens at r/9 at each row r.
-        m[r][r/9].C.size--;
-        if(m[r][r/9]== m[r][r/9].C.D) m[r][r/9].C.D= m[r][r/9].D;
-        if(m[r][r/9]== m[r][r/9].C.U) m[r][r/9].C.U= m[r][r/9].U;
-
+        Arrays.fill(m[r], null);
     }
-    public void delARegion(int region, int row){
+    public void delARegion(int region, int row){ // Exemption is made at Row row where there exists a number in the grid of the input matrix
         for(int i= region; i< region+ N; i++){
             if(i!= row) delARow(i);
         }
@@ -228,18 +215,20 @@ public class Sudoku2 {
         for(int i= 0; i< grid.length; i++){
             for(int j= 0; j< grid[0].length; j++){
                 if(grid[i][j]!= 0) {
-                    int num = N * (N * i + j);
+                    int num = N * (N * i + j); // Use the idx of row to calculate the actual column number. Under this set of exact cover of Sudoku,
                     int row= num+ grid[i][j]- 1;
                     delARegion(num, row);
                 }
             }
         }
+        printM();
+        head= linkM();
     }
     public void markM(){
         for(int i= 0; i< m.length; i++ ){
             int row= i/81;
             int col= i/9% 9;
-            int num= i% 9;
+            int num= i% 9+ 1;
             for(int j= 0; j< m[0].length; j++){
                 if(m[i][j] != null) m[i][j].data= new int[]{row, col, num};
             }
@@ -258,23 +247,21 @@ public class Sudoku2 {
         m= new Node[N* N* N][N* N* 4];
         initiateM();
         markM();
-        head= linkM();
+        //head= linkM();
     }
     public Sudoku2(Sudoku2 sudoku2){
         SIZE= sudoku2.SIZE;
         N= SIZE* SIZE;
         grid= new int[N][N];
         for(int i= 0; i< N; i++){
-            for(int j= 0; j< N; j++)
-                grid[i][j]= sudoku2.grid[i][j];
+            System.arraycopy(sudoku2.grid[i], 0, grid[i], 0, N);
         }
     }
     public void printM(){
-        for(int i= 0; i< m[0].length; i++) System.out.print(i);
         System.out.println();
         for (Node[] nodes : m) {
             for (int j = 0; j < 4 * N * N; j++) {
-                if (nodes[j] != null && nodes[j].U.D == nodes[j] && nodes[j].D.U == nodes[j]) {
+                if (nodes[j] != null /*&& nodes[j].U.D == nodes[j] && nodes[j].D.U == nodes[j]*/) {
                     System.out.print("1 ");
                 } else {
                     System.out.print(" ");
@@ -303,7 +290,6 @@ public class Sudoku2 {
             } catch( Exception e ) {
                 // Convert 'x' words into 0's
                 if( word.compareTo("x") == 0 ) {
-                    result = 0;
                     success = true;
                 }
                 // Ignore all other words that are not integers
@@ -367,7 +353,7 @@ public class Sudoku2 {
     }
 
     public static void main(String[] args) throws Exception {
-        InputStream in = new FileInputStream("veryHard3x3.txt");
+        InputStream in = new FileInputStream("easy3x3.txt");
 
         // The first number in all Sudoku files must represent the size of the puzzle.  See
         // the example files for the file format.
@@ -388,7 +374,7 @@ public class Sudoku2 {
         long start = System.currentTimeMillis();
         s.solve(false);
         long end = System.currentTimeMillis();
-        //s.printM();
+        s.printM();
 
         // Print out the (hopefully completed!) puzzle
         System.out.println("After the solve:");
