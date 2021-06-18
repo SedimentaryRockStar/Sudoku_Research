@@ -24,8 +24,6 @@ public class Node{
     public void unlinkD(){
         U. D= D;
         D. U= U;
-        if(this== C. D) C.D= this.D;
-        if(this== C. U) C.U= this.U;// Deal with the special case where the node is the head or tail of the column
     }
 
     public void unlinkR(){
@@ -37,8 +35,6 @@ public class Node{
     public void relinkD(){
         U. D= this;
         D. U= this;
-        if(this== C.D.U) C.D= this;
-        if(this== C.U.D) C.U= this;
     }
 
     public void relinkR(){
@@ -63,31 +59,23 @@ class ColumnNode extends Node{
 
 
     // The following are the implementation of the cover & uncover method from the paper
-    public void cover(){
-        super.unlinkR();//Unlink the column from other columns
-        Node i= this.D;
-       do{
-            Node j= i;
-            do{
+    public void cover() {
+        unlinkR();//Unlink the column from other columns
+        for (Node i = this.D; i != this; i = i.D) {
+            for (Node j = i.R; j != i; j = j.R) {
                 j.unlinkD();
                 j.C.size--;
-                j= j.R;
-            }while(j!= i);
-            i= i.D;
-        }while(i!= this.D);
+            }
+        }
     }
 
     public void uncover(){
-        Node i= this.U;
-        do{
-            i= i.U;
-            Node j= i;
-            do{
+        relinkR();
+        for(Node i= this.U; i!= this; i= i.U){
+            for(Node j= i.L; j!= i; j= j.L) {
                 j.C.size++;
                 j.relinkD();
-                j= j.L;
-            }while(j!= i);
-        }while (i!= this.U);
-        relinkR();
+            }
+        }
     }
 }

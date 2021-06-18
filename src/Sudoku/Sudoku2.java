@@ -43,30 +43,27 @@ public class Sudoku2 {
         if (head.R== head) return true;
         ColumnNode c= choose_Column(head);
         if(c.size== 0) return false;// Fail to cover the matrix in this branch;
-        if(c== head) head= (ColumnNode) c.R; //Update the head node of columns if the chosen one is the head
-        Node r= c.D;
-        do{
-            r= r.D;
+        c.unlinkR(); //Update the head node of columns if the chosen one is the head
+
+        for(Node r= c.D; r!= c; r= r.D) {
             s.add(r.data);
-            Node j= r;
-            do{
-                j= j.R;
-                System.out.println(j.C.name);
+            Node j = r.R;
+            while (j != r){
                 j.C.cover();
-            }while(j!= r);
-            if(search(k+ 1, s, allSolutions)){
+                j = j.R;
+            }
+            if (search(k + 1, s, allSolutions)) {
                 paintGrid(s, allSolutions);
                 return !allSolutions;
             }
             s.remove(r.data);
-            c= r.C;
-            j= r;
-            do{
-                j= j.L;
+            j = r.L;
+            while (j != r){
                 j.C.uncover();
-            }while(j!= r);
-        }while(r!= c.D);
-        if(head== c.R) head= c;
+                j = j.L;
+            }
+        }
+        c.relinkR();
         c.uncover();
         return false;
     }
@@ -88,11 +85,10 @@ public class Sudoku2 {
 
     public void solve(boolean allSolutions) {
         preprocessM();
-        printM();
+        //printM();
         ArrayList<int[]> s= new ArrayList<>();
         search(0, s, allSolutions);
     }
-
     public void initiateM(){
         for(int idx= 0; idx< N* N; idx++){
             for(int j= N* idx; j<N* idx+ N; j++){
@@ -133,11 +129,7 @@ public class Sudoku2 {
 
         }//Initiate the Box Constraint
     }
-    /**
-     * This method will link the whole m matrix and return the head of the linked column list
-     * @return firstCol . Returns the head of the columns
-     */
-    public ColumnNode linkM(){
+    public void linkM(){
         ColumnNode curCol= new ColumnNode();
         ColumnNode firstCol= new ColumnNode();
         for(int j= 0; j< m[1].length; j++) {
@@ -150,7 +142,7 @@ public class Sudoku2 {
                 curCol.linkR(col);
                 curCol= col;
             }
-            Node first= new ColumnNode();
+            Node first= new Node();
             int i;
             for (i = 0; i < m.length; i++) {
                 if(m[i][j]!= null){
@@ -159,7 +151,7 @@ public class Sudoku2 {
                 }
             }
             first.C= col;
-            col.D= first;
+            col.linkD(first);
             col.size++;
             Node cur= first;
             for(int n= i+ 1; n< m.length; n++){
@@ -173,10 +165,10 @@ public class Sudoku2 {
                     col.size++;
                 }
             }
-            col.U= cur;
-            cur.linkD(first);
+            cur.linkD(col);
         }
-        curCol.linkR(firstCol);
+        head.linkR(firstCol);
+        curCol.linkR(head);
 
         for (Node[] nodes : m) {
             Node first = null;
@@ -196,7 +188,6 @@ public class Sudoku2 {
             }
             if(cur!= null && first!= null)cur.linkR(first);
         }
-        return firstCol;
     }
     /**
      * This are two instance methods to preprocess the m matrix at the beginning of the solve method.
@@ -221,8 +212,7 @@ public class Sudoku2 {
                 }
             }
         }
-        printM();
-        head= linkM();
+        linkM();
     }
     public void markM(){
         for(int i= 0; i< m.length; i++ ){
@@ -234,7 +224,6 @@ public class Sudoku2 {
             }
         }
     }
-
     public Sudoku2(int size ) {
         SIZE = size;
         N = size*size;
@@ -247,7 +236,8 @@ public class Sudoku2 {
         m= new Node[N* N* N][N* N* 4];
         initiateM();
         markM();
-        //head= linkM();
+        head= new ColumnNode();
+        head.size= 81;
     }
     public Sudoku2(Sudoku2 sudoku2){
         SIZE= sudoku2.SIZE;
@@ -270,13 +260,6 @@ public class Sudoku2 {
             System.out.println();
         }
     }
-
-
-
-
-
-
-
     static int readInteger( InputStream in ) throws Exception {
         int result = 0;
         boolean success = false;
@@ -353,7 +336,7 @@ public class Sudoku2 {
     }
 
     public static void main(String[] args) throws Exception {
-        InputStream in = new FileInputStream("easy3x3.txt");
+        InputStream in = new FileInputStream("veryHard4x4.txt");
 
         // The first number in all Sudoku files must represent the size of the puzzle.  See
         // the example files for the file format.
@@ -374,7 +357,7 @@ public class Sudoku2 {
         long start = System.currentTimeMillis();
         s.solve(false);
         long end = System.currentTimeMillis();
-        s.printM();
+        //s.printM();
 
         // Print out the (hopefully completed!) puzzle
         System.out.println("After the solve:");
