@@ -8,7 +8,8 @@ Sudoku1 is the advanced implementation of BackTracking Algorithm.
 Sudoku2 is the implementation of DLX ( Dancing Links & X Algorithm). The basic set up of transforming from a Sudoku Grid to Exact Cover Problem complys with the paper by HARRYSSON, M., & LAESTANDER, H. (2014). Solving Sudoku efficiently with Dancing Links (Dissertation). Retrieved from http://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-157551        
 For a straight view of the Exact Cover Board of a 3x3 Sudoku. Visit: https://www.stolaf.edu//people/hansonr/sudoku/exactcovermatrix.html
 
+Special Thanks to Professor Giulia Albernia who supported and authorized me to use the processing code from the final project.
 
-Special Notice: 1. These files do not contain the processing from a file to a Sudoku puzzle. It still has the set up of the Sudoku puzzle, though.
-                2. Sudoku 0 was the one I submitted to the final project of COMP 250 at McGill. By regulation, the file was pulled back.
+Notice: 1. These files do not contain the processing from a file to a Sudoku puzzle. It still has the set up of the Sudoku puzzle, though.
+        2. Sudoku 0 was the one I submitted to the final project of COMP 250 at McGill. By regulation, the file was pulled back.
               
