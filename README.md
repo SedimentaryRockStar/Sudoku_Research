@@ -11,5 +11,6 @@ For a straight view of the Exact Cover Board of a 3x3 Sudoku. Visit: https://www
 Special Thanks to Professor Giulia Albernia who supported and authorized me to use the processing code from the final project.
 
 Notice: 1. These files do not contain the processing from a file to a Sudoku puzzle. It still has the set up of the Sudoku puzzle, though.
+        
         2. Sudoku 0 was the one I submitted to the final project of COMP 250 at McGill. By regulation, the file was pulled back.
               
