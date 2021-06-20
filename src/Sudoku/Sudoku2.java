@@ -216,9 +216,9 @@ public class Sudoku2 {
     }
     public void markM(){
         for(int i= 0; i< m.length; i++ ){
-            int row= i/81;
-            int col= i/9% 9;
-            int num= i% 9+ 1;
+            int row= i/(N* N);
+            int col= i/N% N;
+            int num= i% N+ 1;
             for(int j= 0; j< m[0].length; j++){
                 if(m[i][j] != null) m[i][j].data= new int[]{row, col, num};
             }
@@ -260,109 +260,6 @@ public class Sudoku2 {
             System.out.println();
         }
     }
-    static int readInteger( InputStream in ) throws Exception {
-        int result = 0;
-        boolean success = false;
-
-        while( !success ) {
-            String word = readWord( in );
-
-            try {
-                result = Integer.parseInt( word );
-                success = true;
-            } catch( Exception e ) {
-                // Convert 'x' words into 0's
-                if( word.compareTo("x") == 0 ) {
-                    success = true;
-                }
-                // Ignore all other words that are not integers
-            }
-        }
-
-        return result;
-    }
-    static String readWord( InputStream in ) throws Exception {
-        StringBuilder result = new StringBuilder();
-        int currentChar = in.read();
-        String whiteSpace = " \t\r\n";
-        // Ignore any leading white space
-        while( whiteSpace.indexOf(currentChar) > -1 ) {
-            currentChar = in.read();
-        }
-
-        // Read all characters until you reach white space
-        while( whiteSpace.indexOf(currentChar) == -1 ) {
-            result.append( (char) currentChar );
-            currentChar = in.read();
-        }
-        return result.toString();
-    }
-    public void read( InputStream in ) throws Exception {
-        for( int i = 0; i < N; i++ ) {
-            for( int j = 0; j < N; j++ ) {
-                grid[i][j] = readInteger( in );
-            }
-        }
-    }
-    void printFixedWidth( String text, int width ) {
-        for( int i = 0; i < width - text.length(); i++ )
-            System.out.print( " " );
-        System.out.print( text );
-    }
-    public void print() {
-        // Compute the number of digits necessary to print out each number in the Sudoku puzzle
-        int digits = (int) Math.floor(Math.log(N) / Math.log(10)) + 1;
-
-        // Create a dashed line to separate the boxes
-        int lineLength = (digits + 1) * N + 2 * SIZE - 3;
-        StringBuffer line = new StringBuffer();
-        line.append("-".repeat(Math.max(0, lineLength)));
-
-        // Go through the grid, printing out its values separated by spaces
-        for( int i = 0; i < N; i++ ) {
-            for( int j = 0; j < N; j++ ) {
-                printFixedWidth( String.valueOf( grid[i][j] ), digits );
-                // Print the vertical lines between boxes
-                if( (j < N-1) && ((j+1) % SIZE == 0) )
-                    System.out.print( " |" );
-                System.out.print( " " );
-            }
-            System.out.println();
-
-            // Print the horizontal line between boxes
-            if( (i < N-1) && ((i+1) % SIZE == 0) )
-                System.out.println( line );
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        InputStream in = new FileInputStream("veryHard4x4.txt");
-
-        // The first number in all Sudoku files must represent the size of the puzzle.  See
-        // the example files for the file format.
-        int puzzleSize = readInteger( in );
-        if( puzzleSize > 100 || puzzleSize < 1 ) {
-            System.out.println("Error: The Sudoku puzzle size must be between 1 and 100.");
-            System.exit(-1);
-        }
-
-        Sudoku2 s = new Sudoku2( puzzleSize );
-
-        s.read( in );
 
 
-        System.out.println("Before the solve:");
-        s.print();
-        System.out.println();
-        long start = System.currentTimeMillis();
-        s.solve(false);
-        long end = System.currentTimeMillis();
-        //s.printM();
-
-        // Print out the (hopefully completed!) puzzle
-        System.out.println("After the solve:");
-        s.print();
-        System.out.printf("The elapsed time is: %d \n", end- start);
-
-    }
 }
