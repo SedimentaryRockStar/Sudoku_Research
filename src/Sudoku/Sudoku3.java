@@ -212,4 +212,5 @@ public class Sudoku3 {
             for (int j = 0; j < N; j++)
                 grid[i][j] = 0;
     }
+
 }
